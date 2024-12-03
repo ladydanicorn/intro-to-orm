@@ -3,18 +3,14 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_marshmallow import Marshmallow
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# Configure database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:Pikapika07$@localhost/fitness_center'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize SQLAlchemy and Marshmallow
 db = SQLAlchemy(app)
 ma = Marshmallow(app)
 
-# Models
 class Member(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -28,10 +24,9 @@ class WorkoutSession(db.Model):
     member_id = db.Column(db.Integer, db.ForeignKey('member.id'), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     workout_type = db.Column(db.String(50), nullable=False)
-    duration = db.Column(db.Integer)  # Duration in minutes
+    duration = db.Column(db.Integer)  
     notes = db.Column(db.Text)
 
-# Schemas for serialization
 class MemberSchema(ma.Schema):
     class Meta:
         fields = ('id', 'name', 'email', 'join_date', 'active')
@@ -45,7 +40,6 @@ members_schema = MemberSchema(many=True)
 workout_session_schema = WorkoutSessionSchema()
 workout_sessions_schema = WorkoutSessionSchema(many=True)
 
-# Member Routes
 @app.route('/members', methods=['POST'])
 def add_member():
     try:
@@ -95,7 +89,6 @@ def delete_member(id):
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-# Workout Session Routes
 @app.route('/workouts', methods=['POST'])
 def add_workout():
     try:
@@ -122,7 +115,7 @@ def add_workout():
 
 @app.route('/members/<id>/workouts', methods=['GET'])
 def get_member_workouts(id):
-    Member.query.get_or_404(id)  # Check if member exists
+    Member.query.get_or_404(id)  
     workouts = WorkoutSession.query.filter_by(member_id=id).all()
     return workout_sessions_schema.jsonify(workouts)
 
